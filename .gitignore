@@ -13,10 +13,12 @@
 # Ignore CRLs
 **.crl
 
-## Ignore old serials
-**.srl.old
-# Ignore old DBs
+# Ignore certificate DBs
+**.db
 **.db.old
-# Ignore (old) attributes
+## Ignore serials
+**.srl
+**.srl.old
+# Ignore attributes
 **.db.attr
 **.db.attr.old

@@ -1,11 +1,11 @@
-# mTLS Authentication CA
+# Simple Root CA
 
 # The [default] section contains global constants that can be referred to from
 # the entire configuration file. It may also hold settings pertaining to more
 # than one openssl command.
 
 [ default ]
-ca                      = mtls-ca               # CA name
+ca                      = root-ca               # CA name
 dir                     = .                     # Top dir
 
 # The next part of the configuration file is used by the openssl req command.
@@ -23,13 +23,12 @@ distinguished_name      = ca_dn                 # DN section
 req_extensions          = ca_reqext             # Desired extensions
 
 [ ca_dn ]
-organizationName        = "Simple Inc"
-organizationalUnitName  = "Authentication & Access Control"
-commonName              = "Simple Inc mTLS CA"
+organizationName        = "$ORG_NAME"
+commonName              = "$ORG_NAME Root CA"
 
 [ ca_reqext ]
 keyUsage                = critical,keyCertSign,cRLSign
-basicConstraints        = critical,CA:true,pathlen:0
+basicConstraints        = critical,CA:true
 subjectKeyIdentifier    = hash
 
 # The remainder of the configuration file is used by the openssl ca command.
@@ -37,9 +36,9 @@ subjectKeyIdentifier    = hash
 # applying to the CA.
 
 [ ca ]
-default_ca              = mtls_ca               # The default CA section
+default_ca              = root_ca               # The default CA section
 
-[ mtls_ca ]
+[ root_ca ]
 certificate             = $dir/ca/$ca.crt       # The CA cert
 private_key             = $dir/ca/$ca/private/$ca.key # CA private key
 new_certs_dir           = $dir/ca/$ca           # Certificate archive
@@ -48,15 +47,15 @@ crlnumber               = $dir/ca/$ca/db/$ca.crl.srl # CRL number file
 database                = $dir/ca/$ca/db/$ca.db # Index file
 rand_serial             = yes                   # Use random serial numbers
 unique_subject          = no                    # Require unique subject
-default_days            = 730                   # How long to certify for
+default_days            = 3652                  # How long to certify for
 default_md              = sha256                # MD to use
 policy                  = match_pol             # Default naming policy
-email_in_dn             = yes                   # Add email to cert DN
+email_in_dn             = no                    # Add email to cert DN
 preserve                = no                    # Keep passed DN ordering
 name_opt                = multiline,-esc_msb,utf8 # Subject DN display options
 cert_opt                = ca_default            # Certificate display options
-copy_extensions         = copy                  # Copy extensions from CSR
-x509_extensions         = client_ext            # Default cert extensions
+copy_extensions         = none                  # Copy extensions from CSR
+x509_extensions         = signing_ca_ext        # Default cert extensions
 default_crl_days        = 365                   # How long before next CRL
 crl_extensions          = crl_ext               # CRL extensions
 
@@ -64,7 +63,7 @@ crl_extensions          = crl_ext               # CRL extensions
 # under what circumstances certification should be denied.
 
 [ match_pol ]
-organizationName        = match                 # Must match 'Simple Inc'
+organizationName        = match                 # Must match '$ORG_NAME'
 organizationalUnitName  = optional              # Included if present
 commonName              = supplied              # Must be present
 
@@ -81,10 +80,21 @@ emailAddress            = optional
 # Certificate extensions define what types of certificates the CA is able to
 # create.
 
-[ client_ext ]
-keyUsage                = digitalSignature,keyAgreement
-basicConstraints        = CA:false
-extendedKeyUsage        = clientAuth
+[ root_ca_ext ]
+keyUsage                = critical,keyCertSign,cRLSign
+basicConstraints        = critical,CA:true
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid:always
+
+[ signing_ca_ext ]
+keyUsage                = critical,keyCertSign,cRLSign
+basicConstraints        = critical,CA:true,pathlen:0
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid:always
+
+[ mtls_ca_ext ]
+keyUsage                = critical,keyCertSign,cRLSign
+basicConstraints        = critical,CA:true,pathlen:0
 subjectKeyIdentifier    = hash
 authorityKeyIdentifier  = keyid:always
 

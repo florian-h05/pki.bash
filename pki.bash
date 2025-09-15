@@ -15,6 +15,8 @@ REQS_MTLS=reqs/mtls/
 # Usage:
 #   setup_root_ca
 setup_root_ca() {
+  # root CA DB needs to be created manually, otherwise OpenSSL fails
+  touch ca/root-ca/db/root-ca.db
   echo "Generating root CA CSR..."
   openssl req -new \
     -config etc/root-ca.conf \
@@ -58,12 +60,20 @@ setup_intermediate_ca() {
   cat "ca/${1}-ca.crt" ca/root-ca.crt > "ca/${1}-ca-chain.pem"
 }
 
+## Private: Create config files from samples
+#
+# Usage:
+#   create_config_files
+create_config_files() {
+  find etc -type f -name "*.sample" -exec sh -c 'for f; do cp "$f" "${f%.sample}"; done' sh {} +
+}
+
 ## Private: Set the organizationName in the config files
 #
 # Usage:
 #   set_organization_name organizationName
 set_organization_name() {
-  find etc -type f -exec sed -i "s/Simple Inc/${1}/g" {} +
+  find etc -type f -name "*.conf" -exec sed -i "s/\$ORG_NAME/${1}/g" {} +
 }
 
 ## Setup the PKI
@@ -71,6 +81,7 @@ set_organization_name() {
 # Usage:
 #   setup organizationName
 setup() {
+  create_config_files
   set_organization_name "${1}"
   setup_root_ca
   setup_intermediate_ca "signing"

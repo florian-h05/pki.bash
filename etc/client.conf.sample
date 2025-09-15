@@ -14,8 +14,8 @@ distinguished_name      = client_dn             # DN template
 req_extensions          = client_reqext         # Desired extensions
 
 [ client_dn ]
-organizationName         = "1. Organization Name        (eg, Simple Inc)                         "
-organizationName_default = 'Simple Inc'
+organizationName         = "1. Organization Name        (eg, $ORG_NAME)                         "
+organizationName_default = '$ORG_NAME'
 organizationalUnitName   = "2. Organizational Unit Name (comma-separated OUs, eg, Users,Admins)  "
 commonName               = "3. Common Name              (eg, Admin-Laptop)                       "
 commonName_default       = $ENV::CN

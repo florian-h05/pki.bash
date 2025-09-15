@@ -23,9 +23,9 @@ distinguished_name      = ca_dn                 # DN section
 req_extensions          = ca_reqext             # Desired extensions
 
 [ ca_dn ]
-organizationName        = "Simple Inc"
+organizationName        = "$ORG_NAME"
 organizationalUnitName  = "Server Authentication & Mail Protection"
-commonName              = "Simple Inc Signing CA"
+commonName              = "$ORG_NAME Signing CA"
 
 [ ca_reqext ]
 keyUsage                = critical,keyCertSign,cRLSign
@@ -64,7 +64,7 @@ crl_extensions          = crl_ext               # CRL extensions
 # under what circumstances certification should be denied.
 
 [ match_pol ]
-organizationName        = match                 # Must match 'Simple Inc'
+organizationName        = match                 # Must match '$ORG_NAME'
 organizationalUnitName  = optional              # Included if present
 commonName              = supplied              # Must be present
 emailAddress            = optional              # Included if present
