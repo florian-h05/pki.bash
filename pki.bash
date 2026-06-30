@@ -123,6 +123,44 @@ create_server() {
   sign_server "${1}"
 }
 
+## Private: Sign a TLS server wildcard certificate CSR
+#
+# Usage:
+#    sign_server_wildcard yourdomain.com
+sign_server_wildcard() {
+  echo "Signing ${1} server wildcard CSR..."
+  openssl ca \
+    -config etc/signing-ca.conf \
+    -in "${REQS_SIGNING}${FILENAME}.csr" \
+    -out "${CERTS_SIGNING}${FILENAME}.crt" \
+    -extensions server_ext
+  # Create DER version of certificate
+  openssl x509 \
+    -in "${CERTS_SIGNING}${FILENAME}.crt" \
+    -out "${CERTS_SIGNING}${FILENAME}.cer" \
+    -outform der
+  # Create PEM certificate chain with intermediate CA
+  cat "${CERTS_SIGNING}${FILENAME}.crt" ca/signing-ca.crt > "${CERTS_SIGNING}${FILENAME}-chain.pem"
+}
+
+## Create a new TLS server wildcard certificate
+#
+# Usage:
+#    create_server_wildcard yourdomain.com
+create_server_wildcard() {
+  FILENAME="wild-${1/./-}"
+
+  echo "Generating wildcard CSR for *.${1}..."
+  # Cover both the subdomains (*.domain.com) and the apex root (domain.com)
+  DNS="*.${1}" BASE_DNS="${1}" \
+  openssl req -new \
+    -config etc/server-wildcard.conf \
+    -out "${REQS_SIGNING}${FILENAME}.csr" \
+    -keyout "${CERTS_SIGNING}${FILENAME}.key"
+
+  sign_server_wildcard "${1}"
+}
+
 ## Private: Sign a mTLS client certificate CSR
 #
 # Usage:

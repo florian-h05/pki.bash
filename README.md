@@ -98,6 +98,16 @@ For the AVM Fritz!Box, you need the certificate chain and private key in a singl
 cat cat certs/signing/fritz-box-chain.pem certs/signing/fritz-box.key > fritz-box.pem
 ```
 
+#### Subdomain Wildcard Certificates
+
+In case you need a wildcard certificate for a subdomain, e.g. for a reverse proxy, the procedure is very similar to the one above:
+
+```bash
+./pki.bash create_server_wildcard "subdomain.local"
+```
+
+The created certificate will be valid for both `subdomain.local` and `*.subdomain.local`.
+
 ### mTLS Client Certificate Authentication
 
 #### Creation of mTLS Client Certificate
